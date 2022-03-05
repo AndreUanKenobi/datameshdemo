@@ -127,9 +127,6 @@ SELECT  info_type.name,
 Reference: [Build a data mesh](https://cloud.google.com/dataplex/docs/build-a-data-mesh)
 
 Referece user `tadej@2023528041521.altostrat.com` / `TadejRule5!@`
-
-
-### Create a Lake and Zone
 - Create "My first lake" 
 - Create the "Raw" Data zone 
 - Add Assets:
