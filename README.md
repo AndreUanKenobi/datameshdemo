@@ -63,12 +63,9 @@ where id is not null
 )
 
 ```
-- Third: create a view defined as:
+- Create a new dataset called "business" 
+- Create a new query as follows: 
 ```
-CREATE OR REPLACE VIEW `andreuankenobi-342014.devday2022.myfirstview`
-
-as 
-
 SELECT a.id,title, answer_count answers, favorite_count favs, view_count views, score, count(a.id) files, min(sample_path) sample_path
 FROM `andreuankenobi-342014.devday2022.post_questions_base_table` a
 join `andreuankenobi-342014.devday2022.eng_contents` b
@@ -76,6 +73,7 @@ on a.id=b.id
 WHERE tags='python'
 group by 1,2,3,4,5,6
 ```
+And save it as "My view" 
 
 
 ## Step 4: Import consumer data
