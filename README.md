@@ -125,6 +125,7 @@ SELECT  info_type.name,
 
 ## Step 9: Mesh it up!
 Reference: [Build a data mesh](https://cloud.google.com/dataplex/docs/build-a-data-mesh)
+
 Referece user `tadej@2023528041521.altostrat.com` / `TadejRule5!@`
 
 
