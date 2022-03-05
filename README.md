@@ -38,95 +38,40 @@ SELECT * FROM `<yourproject>.devday2022.federated-view` LIMIT 10
 SELECT * FROM `<yourproject>.devday2022.client` LIMIT 10
 ```
 
+## Step 5: Open Data Catalog
+- under search, look for SSN. Oh-oh! our newly imported table has clear SSNs! 
+- looks like many other fields might be impacted, so let's create a policy tag and then scan with DLP
+- create a new policy tag
+  - create a new taxonomy
+  - name `sensitive`
+  - Tag Name `PII`
+  - Click on the policy tag, show the principals
+
 ## Step 5: Scan the "Client" table with DLP
+- In Data Catalog, sreach again for SSN. Find the table, and specify "scan with DLP" 
 - Create a DLP scan for the newly imported table
 - Notable settings: 
+  - Name: `PIIScan`
   - Detection: set Confidence Thresold to "Unspecified"
   - Actions: Write to BigQuery, project `<yourproject>`, dataset `devday2022`, table `dlpcscan`
   - Actions: Notify via email
+  - Actions: Publish to Data Catalog
   - Schedule: none
   - Confirm job and create
-  - Job conf should look like this one (mind the project id):
-```
-{
-  "jobId": "Oneoff",
-  "inspectJob": {
-    "actions": [
-      {
-        "saveFindings": {
-          "outputConfig": {
-            "table": {
-              "projectId": "andreuankenobi-342014",
-              "tableId": "dlpcscan",
-              "datasetId": "devday2022"
-            }
-          }
-        }
-      },
-      {
-        "jobNotificationEmails": {}
-      }
-    ],
-    "inspectConfig": {
-      "infoTypes": [
-        {
-          "name": "CREDIT_CARD_NUMBER"
-        },
-        {
-          "name": "EMAIL_ADDRESS"
-        },
-        {
-          "name": "GCP_CREDENTIALS"
-        },
-        {
-          "name": "IMEI_HARDWARE_ID"
-        },
-        {
-          "name": "IP_ADDRESS"
-        },
-        {
-          "name": "MAC_ADDRESS"
-        },
-        {
-          "name": "MAC_ADDRESS_LOCAL"
-        },
-        {
-          "name": "PASSPORT"
-        },
-        {
-          "name": "PHONE_NUMBER"
-        },
-        {
-          "name": "US_BANK_ROUTING_MICR"
-        },
-        {
-          "name": "US_EMPLOYER_IDENTIFICATION_NUMBER"
-        },
-        {
-          "name": "US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER"
-        },
-        {
-          "name": "US_SOCIAL_SECURITY_NUMBER"
-        },
-        {
-          "name": "US_VEHICLE_IDENTIFICATION_NUMBER"
-        }
-      ]
-    },
-    "storageConfig": {
-      "bigQueryOptions": {
-        "tableReference": {
-          "projectId": "<yourproject>",
-          "datasetId": "devday2022",
-          "tableId": "client"
-        },
-        "identifyingFields": [],
-        "excludedFields": [],
-        "includedFields": [],
-        "sampleMethod": "RANDOM_START",
-        "rowsLimit": "1000"
-      }
-    }
-  }
-}
-```
+  
+## Step 6: Enforce Column-level security
+- In Data Catalog, scearh for tag template "Data Loss Prevention Tags"
+- The "Client" table will pop up. Preview it in the preview panel to confirm SSN is there 
+- Click on the table, and confirm the SSN tag has been fired
+- Confirm how there's not policy tag attached to the column. 
+- Scroll up, and select "Open in BigQuery"
+- Under Schema, click "Edit Schema" - on the bottom
+- Select SSN, select "Add Policy Tag". 
+- The table is now secured! 
+
+## Step 7: Mash it up!
+- Create "My first lake" 
+- Create the "Raw" Data zone 
+- Add ASSETS:
+  - BigQuery tables
+  - Storage Buckets 
