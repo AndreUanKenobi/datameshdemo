@@ -29,6 +29,55 @@ available via [Google Drive](https://drive.google.com/drive/folders/12jt0rnwlYqk
 SELECT * FROM `<yourproject>.devday2022.federated-view` LIMIT 10
 ```
 
+### Step 4: Create Authorized View
+Time for some data engineering!
+
+- First: Will create the first temporary table from the Data Transfer defined as: 
+```
+create or replace table `andreuankenobi-342014.devday2022.eng_contents`
+as
+
+SELECT
+ CAST(REGEXP_EXTRACT(content, r'stackoverflow.com/questions/([0-9]+)/') AS INT64) id,
+ sample_path
+FROM
+ `andreuankenobi-342014.devday2022.sample_contents`
+WHERE
+   id is not null and
+ content LIKE '%stackoverflow.com/questions/%'
+```
+- Second: we'll create another temp table from the federated view, defined as: 
+```
+create or replace table `andreuankenobi-342014.devday2022.post_questions_base_table`
+cluster by tags
+as
+ (
+
+with a as(
+select id, title, answer_count,favorite_count,view_count,score, creation_date, split(tags,'|') tags_array
+from `andreuankenobi-342014.devday2022.federated-view`
+ 
+)
+select * except (tags_array) from a, unnest(tags_array) as tags
+where id is not null
+)
+
+```
+- Third: create a view defined as:
+```
+CREATE OR REPLACE VIEW `andreuankenobi-342014.devday2022.myfirstview`
+
+as 
+
+SELECT a.id,title, answer_count answers, favorite_count favs, view_count views, score, count(a.id) files, min(sample_path) sample_path
+FROM `andreuankenobi-342014.devday2022.post_questions_base_table` a
+join `andreuankenobi-342014.devday2022.eng_contents` b
+on a.id=b.id
+WHERE tags='python'
+group by 1,2,3,4,5,6
+```
+
+
 ## Step 4: Import consumer data
 - Create native table `client`, pointed to the GCS bucket with the .avro files (`gs://devday2022/clean-data`)
   -  make sure to use the file "client"
