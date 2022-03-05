@@ -125,8 +125,15 @@ SELECT  info_type.name,
 
 ## Step 9: Mesh it up!
 Reference: [Build a data mesh](https://cloud.google.com/dataplex/docs/build-a-data-mesh)
+
+### Create a Lake and Zone
 - Create "My first lake" 
 - Create the "Raw" Data zone 
 - Add Assets:
   - BigQuery tables
   - Storage Buckets (mind the region!)
+
+### Grant access to Tadej
+Referece user `tadej@2023528041521.altostrat.com` / `Tadej22@`
+
+- Grant Tadej view role on Dataplex resources. 
