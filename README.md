@@ -29,7 +29,7 @@ available via [Google Drive](https://drive.google.com/drive/folders/12jt0rnwlYqk
 SELECT * FROM `<yourproject>.devday2022.federated-view` LIMIT 10
 ```
 
-### Step 4: Create Authorized View
+### Step 4: Create Authorized View - a Data Product
 Time for some data engineering!
 
 - First: Will create the first temporary table from the Data Transfer defined as: 
@@ -63,7 +63,7 @@ where id is not null
 )
 
 ```
-- Create a new dataset called "business" 
+- Create a new dataset called `data-products` 
 - Create a new query as follows: 
 ```
 SELECT a.id,title, answer_count answers, favorite_count favs, view_count views, score, count(a.id) files, min(sample_path) sample_path
@@ -73,7 +73,7 @@ on a.id=b.id
 WHERE tags='python'
 group by 1,2,3,4,5,6
 ```
-And save it as "My view" 
+And save it as "My First Data Product" 
 
 
 ## Step 4: Import consumer data
