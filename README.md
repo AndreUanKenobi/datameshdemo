@@ -30,10 +30,103 @@ SELECT * FROM `<yourproject>.devday2022.federated-view` LIMIT 10
 ```
 
 ## Step 4: Import consumer data
-- Create native table `card`, pointed to the GCS bucket with the .avro files (`gs://devday2022/clean-data`)
-  -  make sure to use the file "card"
+- Create native table `client`, pointed to the GCS bucket with the .avro files (`gs://devday2022/clean-data`)
+  -  make sure to use the file "client"
   -  file format is CSV
 - Test the native table:
 ```
-SELECT * FROM `<yourproject>.devday2022.card` LIMIT 10
+SELECT * FROM `<yourproject>.devday2022.client` LIMIT 10
+```
+
+## Step 5: Scan the "Client" table with DLP
+- Create a DLP scan for the newly imported table
+- Notable settings: 
+  - Detection: set Confidence Thresold to "Unspecified"
+  - Actions: Write to BigQuery, project `<yourproject>`, dataset `devday2022`, table `dlpcscan`
+  - Actions: Notify via email
+  - Schedule: none
+  - Confirm job and create
+  - Job conf should look like this one (mind the project id):
+```
+{
+  "jobId": "Oneoff",
+  "inspectJob": {
+    "actions": [
+      {
+        "saveFindings": {
+          "outputConfig": {
+            "table": {
+              "projectId": "andreuankenobi-342014",
+              "tableId": "dlpcscan",
+              "datasetId": "devday2022"
+            }
+          }
+        }
+      },
+      {
+        "jobNotificationEmails": {}
+      }
+    ],
+    "inspectConfig": {
+      "infoTypes": [
+        {
+          "name": "CREDIT_CARD_NUMBER"
+        },
+        {
+          "name": "EMAIL_ADDRESS"
+        },
+        {
+          "name": "GCP_CREDENTIALS"
+        },
+        {
+          "name": "IMEI_HARDWARE_ID"
+        },
+        {
+          "name": "IP_ADDRESS"
+        },
+        {
+          "name": "MAC_ADDRESS"
+        },
+        {
+          "name": "MAC_ADDRESS_LOCAL"
+        },
+        {
+          "name": "PASSPORT"
+        },
+        {
+          "name": "PHONE_NUMBER"
+        },
+        {
+          "name": "US_BANK_ROUTING_MICR"
+        },
+        {
+          "name": "US_EMPLOYER_IDENTIFICATION_NUMBER"
+        },
+        {
+          "name": "US_INDIVIDUAL_TAXPAYER_IDENTIFICATION_NUMBER"
+        },
+        {
+          "name": "US_SOCIAL_SECURITY_NUMBER"
+        },
+        {
+          "name": "US_VEHICLE_IDENTIFICATION_NUMBER"
+        }
+      ]
+    },
+    "storageConfig": {
+      "bigQueryOptions": {
+        "tableReference": {
+          "projectId": "<yourproject>",
+          "datasetId": "devday2022",
+          "tableId": "client"
+        },
+        "identifyingFields": [],
+        "excludedFields": [],
+        "includedFields": [],
+        "sampleMethod": "RANDOM_START",
+        "rowsLimit": "1000"
+      }
+    }
+  }
+}
 ```
