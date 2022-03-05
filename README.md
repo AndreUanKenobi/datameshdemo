@@ -118,7 +118,7 @@ SELECT * FROM `<yourproject>.devday2022.client` LIMIT 10
 - Select SSN, select "Add Policy Tag". 
 - The table is now secured! 
 
-## Step 7: Mash it up!
+## Step 7: Mesh it up!
 - Create "My first lake" 
 - Create the "Raw" Data zone 
 - Add ASSETS:
