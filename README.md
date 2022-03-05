@@ -100,25 +100,35 @@ SELECT * FROM `<yourproject>.devday2022.client` LIMIT 10
 - Notable settings: 
   - Name: `PIIScan`
   - Detection: set Confidence Thresold to "Unspecified"
-  - Actions: Write to BigQuery, project `<yourproject>`, dataset `devday2022`, table `dlpcscan`
+  - Actions: Write to BigQuery, project `<yourproject>`, dataset `devday2022`, table `dlpscan`
   - Actions: Notify via email
   - Actions: Publish to Data Catalog
   - Schedule: none
   - Confirm job and create
+ - View results in BigQuery, by running this query: 
+```
+SELECT  info_type.name,
+ likelihood,
+ COUNT(info_type.name) matches FROM `<yourproject>.devday2022.dlpscan` 
+ GROUP BY
+ info_type.name,
+ likelihood
+```
   
 ## Step 8: Enforce Column-level security
 - In Data Catalog, scearh for tag template "Data Loss Prevention Tags"
 - The "Client" table will pop up. Preview it in the preview panel to confirm SSN is there 
 - Click on the table, and confirm the SSN tag has been fired
-- Confirm how there's not policy tag attached to the column. 
+- Confirm how there's not policy tag attached to the column 
 - Scroll up, and select "Open in BigQuery"
 - Under Schema, click "Edit Schema" - on the bottom
-- Select SSN, select "Add Policy Tag". 
+- Select SSN, select "Add Policy Tag"
 - The table is now secured! 
 
 ## Step 9: Mesh it up!
 - Create "My first lake" 
 - Create the "Raw" Data zone 
-- Add ASSETS:
+- Add Assets:
   - BigQuery tables
-  - Storage Buckets 
+  - Storage Buckets (mind the region!)
+  - 
