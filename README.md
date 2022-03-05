@@ -1,18 +1,16 @@
 # Data Mesh Demo, Google Cloud UKI Developer Day 2022
 
 ## Step 1: load/verify files availability in a GCS bucket
-Avro files for federated source stored under [gs://devday2022/clean-data](gs://devday2022/clean-data)
-Consumer data files for native source stored under [gs://data_files_bq/demo-complete](gs://data_files_bq/demo-complete)
 
-or 
+- Find the Avro files used to create a federated source into `gs://devday2022/clean-data`
+- Find the Consumer CSV files for Data Transfer Service into `gs://data_files_bq/demo-complete`
 
-available via [Google Drive](https://drive.google.com/drive/folders/12jt0rnwlYqknP30ALAk9PFHbXZCRxLcE?usp=sharing)
+or both available via [Google Drive](https://drive.google.com/drive/folders/12jt0rnwlYqknP30ALAk9PFHbXZCRxLcE?usp=sharing)
 
 
 ## Step 2: Import table using the Data Transfer Service
 - Create dataset `devday2022`
-- We will import the public table `bigquery-public-data.github_repos.sample_contents`
-- If not enabled, enable the BigQuery Data Transfer API when prompted to do so
+- Import the public table `bigquery-public-data.github_repos.sample_contents`
 - On the left-hand menu, select "Data Transfers" and create a new job
   - Source: Dataset Copy
   - Repeats: on demand
@@ -34,28 +32,28 @@ Time for some data engineering!
 
 - First: Will create the first temporary table from the Data Transfer defined as: 
 ```
-create or replace table `andreuankenobi-342014.devday2022.eng_contents`
+create or replace table `<yourproject>.devday2022.eng_contents`
 as
 
 SELECT
  CAST(REGEXP_EXTRACT(content, r'stackoverflow.com/questions/([0-9]+)/') AS INT64) id,
  sample_path
 FROM
- `andreuankenobi-342014.devday2022.sample_contents`
+ `<yourproject>.devday2022.sample_contents`
 WHERE
    id is not null and
  content LIKE '%stackoverflow.com/questions/%'
 ```
 - Second: we'll create another temp table from the federated view, defined as: 
 ```
-create or replace table `andreuankenobi-342014.devday2022.post_questions_base_table`
+create or replace table `<yourproject>.devday2022.post_questions_base_table`
 cluster by tags
 as
  (
 
 with a as(
 select id, title, answer_count,favorite_count,view_count,score, creation_date, split(tags,'|') tags_array
-from `andreuankenobi-342014.devday2022.federated-view`
+from `<yourproject>.devday2022.federated-view`
  
 )
 select * except (tags_array) from a, unnest(tags_array) as tags
@@ -67,8 +65,8 @@ where id is not null
 - Create a new query as follows: 
 ```
 SELECT a.id,title, answer_count answers, favorite_count favs, view_count views, score, count(a.id) files, min(sample_path) sample_path
-FROM `andreuankenobi-342014.devday2022.post_questions_base_table` a
-join `andreuankenobi-342014.devday2022.eng_contents` b
+FROM `<yourproject>.devday2022.post_questions_base_table` a
+join `<yourproject>.devday2022.eng_contents` b
 on a.id=b.id
 WHERE tags='python'
 group by 1,2,3,4,5,6
@@ -126,9 +124,9 @@ SELECT  info_type.name,
 - The table is now secured! 
 
 ## Step 9: Mesh it up!
+Reference: [Build a data mesh](https://cloud.google.com/dataplex/docs/build-a-data-mesh)
 - Create "My first lake" 
 - Create the "Raw" Data zone 
 - Add Assets:
   - BigQuery tables
   - Storage Buckets (mind the region!)
-  - 
