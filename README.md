@@ -29,7 +29,7 @@ available via [Google Drive](https://drive.google.com/drive/folders/12jt0rnwlYqk
 SELECT * FROM `<yourproject>.devday2022.federated-view` LIMIT 10
 ```
 
-### Step 4: Create Authorized View - a Data Product
+## Step 4: Create Authorized View - a Data Product
 Time for some data engineering!
 
 - First: Will create the first temporary table from the Data Transfer defined as: 
@@ -76,7 +76,7 @@ group by 1,2,3,4,5,6
 And save it as "My First Data Product" 
 
 
-## Step 4: Import consumer data
+## Step 5: Import consumer data
 - Create native table `client`, pointed to the GCS bucket with the .avro files (`gs://devday2022/clean-data`)
   -  make sure to use the file "client"
   -  file format is CSV
@@ -85,7 +85,7 @@ And save it as "My First Data Product"
 SELECT * FROM `<yourproject>.devday2022.client` LIMIT 10
 ```
 
-## Step 5: Open Data Catalog
+## Step 6: Open Data Catalog
 - under search, look for SSN. Oh-oh! our newly imported table has clear SSNs! 
 - looks like many other fields might be impacted, so let's create a policy tag and then scan with DLP
 - create a new policy tag
@@ -94,7 +94,7 @@ SELECT * FROM `<yourproject>.devday2022.client` LIMIT 10
   - Tag Name `PII`
   - Click on the policy tag, show the principals
 
-## Step 5: Scan the "Client" table with DLP
+## Step 7: Scan the "Client" table with DLP
 - In Data Catalog, sreach again for SSN. Find the table, and specify "scan with DLP" 
 - Create a DLP scan for the newly imported table
 - Notable settings: 
@@ -106,7 +106,7 @@ SELECT * FROM `<yourproject>.devday2022.client` LIMIT 10
   - Schedule: none
   - Confirm job and create
   
-## Step 6: Enforce Column-level security
+## Step 8: Enforce Column-level security
 - In Data Catalog, scearh for tag template "Data Loss Prevention Tags"
 - The "Client" table will pop up. Preview it in the preview panel to confirm SSN is there 
 - Click on the table, and confirm the SSN tag has been fired
@@ -116,7 +116,7 @@ SELECT * FROM `<yourproject>.devday2022.client` LIMIT 10
 - Select SSN, select "Add Policy Tag". 
 - The table is now secured! 
 
-## Step 7: Mesh it up!
+## Step 9: Mesh it up!
 - Create "My first lake" 
 - Create the "Raw" Data zone 
 - Add ASSETS:
