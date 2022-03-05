@@ -125,6 +125,8 @@ SELECT  info_type.name,
 
 ## Step 9: Mesh it up!
 Reference: [Build a data mesh](https://cloud.google.com/dataplex/docs/build-a-data-mesh)
+Referece user `tadej@2023528041521.altostrat.com` / `TadejRule5!@`
+
 
 ### Create a Lake and Zone
 - Create "My first lake" 
@@ -132,8 +134,4 @@ Reference: [Build a data mesh](https://cloud.google.com/dataplex/docs/build-a-da
 - Add Assets:
   - BigQuery tables
   - Storage Buckets (mind the region!)
-
-### Grant access to Tadej
-Referece user `tadej@2023528041521.altostrat.com` / `Tadej22@`
-
-- Grant Tadej view role on Dataplex resources. 
+  - Grant Tadej view role on Dataplex resources. 
