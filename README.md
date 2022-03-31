@@ -1,11 +1,139 @@
 # Data Mesh Demo, Google Cloud UKI Developer Day 2022
 
-## Step 1: load/verify files availability in a GCS bucket
+## Prep work
 
-- Find the Avro files used to create a federated source into `gs://devday2022/clean-data`
-- Find the Consumer CSV files for Data Transfer Service into `gs://data_files_bq/demo-complete`
+- All GCS files should be avialable here `gs://devday2022/'
+- A BigTable instance `timeseries` should be spun up and ready
+- modify the cloud big table config file: `nano .cbtrc`
+- add/update/check these two properties are set:
+```
+project = andreuankenobi-342014
+instance = timeseries
+```
+- Create BigTable table and column family
+```
+cbt createtable timeseries families="cell_data"
+```
+- Import data into BigTable
+```
+cbt import timeseries bigtable_import.csv column-family=cell_data
+```
+- Verify the dataload is ok
+```
+cbt read timeseries
+```
 
-or both available via [Google Drive](https://drive.google.com/drive/folders/12jt0rnwlYqknP30ALAk9PFHbXZCRxLcE?usp=sharing)
+
+## Section 1: BigTable federation
+- Read the content of BigTable 
+```
+cbt read timeseries
+```
+- To federate BT to BigQuery, we'll have to specify a JSON file `tabledef.json`:
+```
+{
+    "sourceFormat": "BIGTABLE",
+    "sourceUris": [
+     https://googleapis.com/bigtable/projects/andreuankenobi-342014/instances/timeseries/tables/timeseries
+    ],
+    "bigtableOptions": {
+        "readRowkeyAsString": "true",
+        "columnFamilies" : [
+            {
+                "familyId": "cell_data",
+                "onlyReadLatest": "true",
+                "columns": [
+              {
+                  "qualifierString": "attr1",
+                  "type": "STRING"
+              },
+              {
+                  "qualifierString": "attr2",
+                  "type": "STRING"
+              }
+              ,
+                  {
+                  "qualifierString": "attr3",
+                  "type": "STRING"
+              }
+              ,
+                  {
+                  "qualifierString": "attr4",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr5",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr6",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr7",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr8",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr9",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr10",
+                  "type": "STRING"
+              }
+              ,
+               {
+                  "qualifierString": "country_code",
+                  "type": "STRING"
+              },
+               {
+                  "qualifierString": "cust_identifier",
+                  "type": "STRING"
+              },
+              {
+                  "qualifierString": "tstamp",
+                  "type": "STRING"
+              }
+          ]
+
+            }
+        ]
+    }
+    
+}
+```
+- to federate the table in BigQuery, run the following command: 
+```
+bq mk --external_table_definition=tabledef.json ukidev2021.telemetry_federated
+```
+- Showcase the table schema - NESTED
+- Create a polished query on the newly federated table:
+'''
+SELECT timestamp(cell_data.tstamp.cell.value) ts,
+cast(cell_data.attr1.cell.value as NUMERIC) attr1,
+cast(cell_data.attr2.cell.value as NUMERIC) attr2,
+cast(cell_data.attr3.cell.value as NUMERIC) attr3,
+cast(cell_data.attr4.cell.value as NUMERIC) attr4,
+cast(cell_data.attr5.cell.value as NUMERIC) attr5,
+cast(cell_data.attr6.cell.value as NUMERIC) attr6,
+cast(cell_data.attr7.cell.value as NUMERIC) attr7,
+cast(cell_data.attr8.cell.value as NUMERIC) attr8,
+cast(cell_data.attr9.cell.value as NUMERIC) attr9,
+cast(cell_data.attr10.cell.value as NUMERIC) attr10,
+cell_data.country_code.cell.value country_code
+FROM `andreuankenobi-342014.ukidev2021.telemetry_federated`
+'''
+- Create an authorized view called `telemetry` under the dataset `reporting`
 
 
 ## Step 2: Import table using the Data Transfer Service
