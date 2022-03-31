@@ -24,7 +24,7 @@ cbt read timeseries
 ```
 
 
-## Section 1: BigTable federation
+## Section 1: BigTable federation / Analytics Hub
 - Read the content of BigTable 
 ```
 cbt read timeseries
@@ -154,6 +154,25 @@ GROUP BY
   TIMESTAMP_TRUNC(ts, HOUR)
 ```
 - Save this query as `hourly_telemetry` table in the `exchange` dataset
+- Last: publish this dataset into the Analytics Hub
+
+## Section 2: GCS federation / Dataplex / Data Catalog
+- Create a new table - `clients` - federated from gcs under the ukidev2021 dataset
+- Query the newly federated table:
+```
+SELECT * FROM `andreuankenobi-342014.ukidev2021.client`
+```
+- Create an authorized view `client_clean` on reporting dataset as: 
+```
+SELECT * except(ssn,first_name, last_name) FROM `andreuankenobi-342014.ukidev2021.client`
+```
+- Save a new table `client` in the exchange dataset as:
+```
+SELECT * FROM `andreuankenobi-342014.reporting.client_clean` 
+```
+- Scan this dataset with DLP
+
+
 
 
 ## Step 2: Import table using the Data Transfer Service
