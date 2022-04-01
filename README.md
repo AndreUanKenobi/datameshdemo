@@ -156,7 +156,7 @@ GROUP BY
 - Save this query as `hourly_telemetry` table in the `exchange` dataset
 - Last: publish this dataset into the Analytics Hub
 
-## Section 2: GCS federation / Dataplex / Data Catalog
+## Section 2: GCS federation /  Data Catalog
 - Create a new table - `client` - federated from gcs under the ukidev2021 dataset
 - Query the newly native table:
 ```
