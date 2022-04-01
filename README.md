@@ -157,7 +157,7 @@ GROUP BY
 - Last: publish this dataset into the Analytics Hub
 
 ## Section 2: GCS federation / Dataplex / Data Catalog
-- Create a new table - `clients` - federated from gcs under the ukidev2021 dataset
+- Create a new table - `client` - federated from gcs under the ukidev2021 dataset
 - Query the newly native table:
 ```
 SELECT * FROM `andreuankenobi-342014.ukidev2021.client`
