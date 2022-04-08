@@ -1,0 +1,6 @@
+type,daily_interest_rate,annual_fee
+classic,0.0025,400
+gold,0.003,500
+junior,0.005,0
+junior2,0.004,50
+classic2,0.0035,100
