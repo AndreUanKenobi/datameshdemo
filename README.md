@@ -1,13 +1,14 @@
-# Data Mesh Demo, Google Cloud UKI Developer Day 2022
+# Data Mesh Demo, 2022
 
 ## Prep work
 
-- All GCS files should be avialable here `gs://devday2022/'
+- BigTable files [available here](https://drive.google.com/drive/folders/1QYgKLE-cEPFTEptxPj8Tv6FHTdEN9gEu?usp=sharing)
+- Client demo data [available here](https://drive.google.com/drive/folders/1QYgKLE-cEPFTEptxPj8Tv6FHTdEN9gEu?usp=sharing) - and will also be available on a storage bucket 
 - A BigTable instance `timeseries` should be spun up and ready
 - modify the cloud big table config file: `nano .cbtrc`
 - add/update/check these two properties are set:
 ```
-project = andreuankenobi-342014
+project = meshthedata
 instance = timeseries
 ```
 - Create BigTable table and column family
