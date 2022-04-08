@@ -1,0 +1,80 @@
+{
+    "sourceFormat": "BIGTABLE",
+    "sourceUris": [
+     https://googleapis.com/bigtable/projects/meshthedata/instances/timeseries/tables/timeseries
+    ],
+    "bigtableOptions": {
+        "readRowkeyAsString": "true",
+        "columnFamilies" : [
+            {
+                "familyId": "cell_data",
+                "onlyReadLatest": "true",
+                "columns": [
+              {
+                  "qualifierString": "attr1",
+                  "type": "STRING"
+              },
+              {
+                  "qualifierString": "attr2",
+                  "type": "STRING"
+              }
+              ,
+                  {
+                  "qualifierString": "attr3",
+                  "type": "STRING"
+              }
+              ,
+                  {
+                  "qualifierString": "attr4",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr5",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr6",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr7",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr8",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr9",
+                  "type": "STRING"
+              }
+              ,
+              {
+                  "qualifierString": "attr10",
+                  "type": "STRING"
+              }
+              ,
+               {
+                  "qualifierString": "country_code",
+                  "type": "STRING"
+              },
+               {
+                  "qualifierString": "cust_identifier",
+                  "type": "STRING"
+              },
+              {
+                  "qualifierString": "tstamp",
+                  "type": "STRING"
+              }
+          ]
+
+            }
+        ]
+    }
+    
+}
