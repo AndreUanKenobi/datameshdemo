@@ -2,40 +2,56 @@
 
 ## Prep work
 
-- BigTable files [available here](https://drive.google.com/drive/folders/1QYgKLE-cEPFTEptxPj8Tv6FHTdEN9gEu?usp=sharing)
-- Client demo data [available here](https://drive.google.com/drive/folders/1QYgKLE-cEPFTEptxPj8Tv6FHTdEN9gEu?usp=sharing) - and will also be available on a storage bucket 
-- A BigTable instance `timeseries` should be spun up and ready
-- modify the cloud big table config file: `nano .cbtrc`
-- add/update/check these two properties are set:
-```
-project = meshthedata
-instance = timeseries
-```
-- Create BigTable table and column family
-```
-cbt createtable timeseries families="cell_data"
-```
+- BigTable files [available here](https://drive.google.com/drive/folders/1QYgKLE-cEPFTEptxPj8Tv6FHTdEN9gEu?usp=sharing), in this repo, and at `gs://meshthedatabucket/bigtable`
+- Client demo data [available here](https://drive.google.com/drive/folders/1QYgKLE-cEPFTEptxPj8Tv6FHTdEN9gEu?usp=sharing), in this repo, and at `gs://meshthedatabucket/consumer_data` 
+- A BigTable instance `customer-telemetry` should be spun up and ready, region US-Central-1
 - Import data into BigTable
-```
-cbt import timeseries bigtable_import.csv column-family=cell_data
-```
-- Verify the dataload is ok
-```
-cbt read timeseries
-```
+    - open cloudshell
+    - modify the cloud big table config file: `nano .cbtrc`
+    - add/update/check these two properties are set:
+        ```
+        project = meshthedata
+        instance = customer-telemetry
+        ```
+    - Create BigTable table and column family
+        ```
+        cbt createtable customer-telemetry families="cell_data"
+        ```
+    - Upload `bigtable_import.csv` and `tabledef.json` into Cloud Shell
+    - Import data into BigTable
+        ```
+        cbt import customer-telemetry bigtable_import.csv column-family=cell_data
+        ```
+        the import will upload 1000+ rows
+    - Verify the dataload is ok
+        ```
+        cbt read customer-telemetry
+        ```
 
 
 ## Section 1: BigTable federation / Analytics Hub
+- Let's roleplay we are responsible to drive data-driven insights for the Consumer division of the company. 
 - Read the content of BigTable 
 ```
-cbt read timeseries
+cbt read customer-telemetry
 ```
-- To federate BT to BigQuery, we'll have to specify a JSON file `tabledef.json`:
+This table gives us information about what the customers are doing
+
+- Go to BigQuery, and create three new datasets, US multi regional
+    - `landing`
+    - `reporting`
+    - `exchange`   
+
+- To federate the table in BigQuery as `customer-telemetry-federated`, run the following command: 
+```
+bq mk --external_table_definition=tabledef.json landing.customer-telemetry-federated
+```
+- The federation process requires to specify a JSON file `tabledef.json` which we previously uploaded to cloudshell - the structure is the following (mind the URI!):
 ```
 {
     "sourceFormat": "BIGTABLE",
     "sourceUris": [
-     https://googleapis.com/bigtable/projects/andreuankenobi-342014/instances/timeseries/tables/timeseries
+     https://googleapis.com/bigtable/projects/meshthedata/instances/customer-telemetry/tables/customer-telemetry
     ],
     "bigtableOptions": {
         "readRowkeyAsString": "true",
@@ -113,10 +129,7 @@ cbt read timeseries
     
 }
 ```
-- to federate the table in BigQuery, run the following command: 
-```
-bq mk --external_table_definition=tabledef.json ukidev2021.telemetry_federated
-```
+- Close Cloud Shell, we won't need it anymore! 
 - Showcase the table schema - NESTED
 - Create a polished query on the newly federated table:
 ```
@@ -130,11 +143,10 @@ cast(cell_data.attr6.cell.value as NUMERIC) attr6,
 cast(cell_data.attr7.cell.value as NUMERIC) attr7,
 cast(cell_data.attr8.cell.value as NUMERIC) attr8,
 cast(cell_data.attr9.cell.value as NUMERIC) attr9,
-cast(cell_data.attr10.cell.value as NUMERIC) attr10,
-cell_data.country_code.cell.value country_code
-FROM `andreuankenobi-342014.ukidev2021.telemetry_federated`
+cast(cell_data.attr10.cell.value as NUMERIC) attr10
+FROM `meshthedata.landing.customer-telemetry-federated`
 ```
-- Create an authorized view called `telemetry` under the dataset `reporting` using the above query.
+- Create an authorized view called `customer-telemetry` under the dataset `reporting` using the above query.
 - Create an hourly aggregated, normalized view of this data running the following query:
 ```
 SELECT
@@ -150,12 +162,16 @@ SELECT
   SUM(attr9) attr9,
   SUM(attr10) attr10
 FROM
-  `andreuankenobi-342014.reporting.telemetry`
+  `meshthedata.reporting.customer-telemetry`
 GROUP BY
   TIMESTAMP_TRUNC(ts, HOUR)
 ```
-- Save this query as `hourly_telemetry` table in the `exchange` dataset
+- Save this query as `customer-hourly-telemetry` table in the `exchange` dataset
 - Last: publish this dataset into the Analytics Hub
+    - Create the `Google Exchange` exchange in the US region
+    - Create the `Consumer Data` listing, pointing to the `exchange` dataset
+    - Last - add the dataset to another project `andreuankenobi-public`, linked dataset name `consumer_data`  
+- Hit save, and show how the two datasets are now in sync
 
 ## Section 2: GCS federation /  Data Catalog
 - Create a new table - `client` - federated from gcs under the ukidev2021 dataset
