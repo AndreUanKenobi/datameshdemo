@@ -174,45 +174,50 @@ GROUP BY
 - Hit save, and show how the two datasets are now in sync
 
 ## Section 2: GCS federation /  Data Catalog
-- Create a new table - `client` - federated from gcs under the ukidev2021 dataset
-- Query the newly native table:
-```
-SELECT * FROM `andreuankenobi-342014.ukidev2021.client`
-```
-- Moving over to Data Catalog, create a new policy tag PII with Fine-grained IAM role required
-- In data catalog, go to search and find our original table
-- Explain Policy Tags require a schema manipulation - go to BigQuery
+- Create a new native table - `client` - from GCS, under the `landing` dataset
+- Preview this table and show how there's definitely PII data involved
+- [Optional] showcase DLP 
+    -  from the table page, click Export > Scan with DLP
+    -  in "Choose input data", name the scan `ClientPIIScan`
+    -  in "Configure detection", mention how custom templates and rulesets could be potentially configured, and set the likelyhood to "Unspecified"
+    -  in "Actions", check "Publish to Data Catalog" and uncheck "Notify by email"
+    -  Continue and save; the job should complete in a couple of minutes. Feel free to show a previous job and the findings. 
+- Move over to Data Catalog, create a new policy tag taxonomy `PII`, with tags `PIIfield` and Fine-grained IAM role 
+- In data catalog, search for the original table by searching "ssn" in the search page
+- Explain the difference between a business tag and a policy tag (add tag), and explain how in the schema is shown how the sensitive fields have no policy tag attached
+- Click on "Open with BigQuery"
+- Edit the schema, and assign the Policy Tag
 - Apply Policy Tag and show that won't work anymore
-```
-SELECT * FROM `andreuankenobi-342014.ukidev2021.client`
-```
+    - from preview
+    - by running 
+    ```
+    SELECT * FROM `meshthedata.landing.client`
+    ```
 - Show that the policies are sticky: 
 ```
-create or replace view `andreuankenobi-342014.reporting.client` as
-SELECT * FROM `andreuankenobi-342014.ukidev2021.client`
+create or replace view `meshthedata.reporting.client` as
+SELECT * FROM `meshthedata.landing.client`
 ```
 this view can't be queried as it is
 - If we use except to filter out PIIs though: 
 ```
-create or replace view `andreuankenobi-342014.reporting.client_clean` as
-SELECT * except(ssn,first_name, last_name) FROM `andreuankenobi-342014.ukidev2021.client`
+create or replace view `meshthedata.reporting.client` as
+SELECT * except(ssn,first_name, last_name) FROM `meshthedata.landing.client`
 ```
 
-
-- Create an authorized view `client_clean` on reporting dataset as: 
+- Save a new view `client-profiles` in the exchange dataset as:
 ```
-SELECT * except(ssn,first_name, last_name) FROM `andreuankenobi-342014.ukidev2021.client`
+SELECT * except (gender, street, address) FROM `meshthedata.reporting.client` 
 ```
-- Save a new table `client` in the exchange dataset as:
-```
-SELECT * FROM `andreuankenobi-342014.reporting.client_clean` 
-```
-- Create an authorized view under Exchange as: 
-```
-SELECT * FROM `andreuankenobi-342014.reporting.client_clean`
-```
-
-
 
 ## Step 3: Mesh it up!
 Reference: [Build a data mesh](https://cloud.google.com/dataplex/docs/build-a-data-mesh
+- Create/verify the lake "Consumer Data" exists; use no metastore for the moment; creating the data lake will take a while, so get it ready before the demo!
+- Create a "Consumer Raw Data" Raw zone, 
+    -  Mind to us US multiregional!
+    -  Add the assets: landing BigQuery Datasets, "meshthedatabucket" bucket
+- Create a "Consumer Prepared Data" Raw zone, 
+    -  Mind to us US multiregional!
+    -  Add the assets: landing BigQuery Datasets
+- Showcase Security, Discovery, Explore (briefly)
+- For process, mention [this article](https://cloud.google.com/dataplex/docs/check-data-quality) for data quality checks from Dataplex.
