@@ -1,4 +1,4 @@
-# Data Mesh, Fabric and all them nice things - 2022
+# Data Mesh, Data Fabric and all them nice things - 2022
 
 ## Prep work
 
