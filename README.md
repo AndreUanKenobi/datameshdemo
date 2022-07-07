@@ -173,6 +173,45 @@ GROUP BY
     - Last - add the dataset to another project `andreuankenobi-public`, linked dataset name `consumer_data`  
 - Hit save, and show how the two datasets are now in sync
 
+### Adding an ARIMA model
+```
+CREATE OR REPLACE MODEL exchange.arima_model
+OPTIONS
+  (model_type = 'ARIMA_PLUS',
+   time_series_timestamp_col = 'ts',
+   time_series_data_col = 'attr1',
+   auto_arima = TRUE,
+   data_frequency = 'AUTO_FREQUENCY',
+   decompose_time_series = TRUE
+  ) AS
+SELECT
+  ts, attr1
+FROM
+  `meshthedata.exchange.customer-hourly-telemetry`
+GROUP BY date
+```
+
+
+```
+SELECT
+ *
+FROM
+ ML.EXPLAIN_FORECAST(MODEL exchange.arima_model,
+             STRUCT(30 AS horizon, 0.8 AS confidence_level))
+where time_series_type = 'forecast'; 
+```
+
+```
+SELECT
+  *
+FROM
+  ML.DETECT_ANOMALIES(MODEL exchange.arima_model,
+                      STRUCT(0.8 AS anomaly_prob_threshold))
+
+                      where is_anomaly is true
+                      
+  ```
+
 ## Section 2: GCS federation /  Data Catalog
 - Create a new native table - `client` - from GCS, under the `landing` dataset
 - Preview this table and show how there's definitely PII data involved
